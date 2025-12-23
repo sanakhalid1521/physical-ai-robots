@@ -18,6 +18,45 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 }
 
+/* Global light pink background for all pages */
+body {
+  background-color: #FFD1DC !important; /* Light pink */
+}
+
+html {
+  background-color: #FFD1DC !important; /* Light pink */
+}
+
+.main-wrapper {
+  background-color: #FFD1DC !important; /* Light pink */
+}
+
+.container {
+  background-color: transparent !important;
+}
+
+/* Ensure content areas have appropriate contrast */
+.alert {
+  background-color: #ffffff !important;
+  border-radius: 8px;
+}
+
+/* Card backgrounds */
+.card {
+  background-color: #ffffff !important;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Ensure proper contrast for text */
+.alert--primary {
+  --ifm-alert-background-color: #ffe0f0;
+}
+
+.alert--secondary {
+  --ifm-alert-background-color: #f8f9ff;
+}
+
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
   --ifm-color-primary: #FF40FF; /* Lighter magenta for dark mode */

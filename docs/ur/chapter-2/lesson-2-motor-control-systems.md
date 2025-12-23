@@ -44,3 +44,7 @@ title: ' lesson 2: موٹر کنٹرول سسٹم'
 4. غلطیوں کو درست کرنے کے لیے فیڈ بیک کنٹرول لاگو کرنا
 
 کنٹرول لوپ کو اسکیچ کریں اور دیکھیں کہ کہاں فیڈ بیک کا استعمال کارکردگی کو بہتر بنانے کے لیے کیا جائے گا۔
+
+import QuizButton from '@site/src/components/QuizButton/QuizButton';
+
+<QuizButton chapterNumber={2} lessonTitle="موٹر کنٹرول سسٹم" />

@@ -32,3 +32,7 @@ title: ' lesson 2: ہیومنوائڈ روبوٹکس کی بنیاد'
 - سپیئریکل جوڑ: متعدد محور کے گرد گھومنا
 
 غور کریں کہ مختلف کاموں جیسے پہنچنا، تھامنا اور ہیراپلیٹن کے لیے کتنی ڈگریاں ضروری ہیں۔
+
+import QuizButton from '@site/src/components/QuizButton/QuizButton';
+
+<QuizButton chapterNumber={1} lessonTitle="ہیومنوائڈ روبوٹکس کی بنیاد" />

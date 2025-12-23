@@ -40,3 +40,7 @@ title: ' lesson 3: سینسرز اور ایکٹو ایٹرز'
 - سائز اور وزن کی پابندیاں
 
 گھٹنے کے جوڑ کے لیے کم از کم 3 مختلف ایکٹو ایٹر آپشنز کا ایک سادہ ٹیبل تیار کریں، جس میں ان کے فوائد اور نقصانات ہوں جو ہیومنوائڈ ایپلیکیشنز کے لیے ہیں۔
+
+import QuizButton from '@site/src/components/QuizButton/QuizButton';
+
+<QuizButton chapterNumber={1} lessonTitle="سینسرز اور ایکٹو ایٹرز" />

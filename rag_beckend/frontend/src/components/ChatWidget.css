@@ -1,0 +1,250 @@
+.chat-widget {
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  width: 100%;
+  max-width: 600px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  font-family: Arial, sans-serif;
+}
+
+.chat-header {
+  background-color: #4a6fa5;
+  color: white;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-header h3 {
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.chat-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-mode-selector {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-mode-selector button {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.chat-mode-selector button.active {
+  background-color: white;
+  color: #4a6fa5;
+  font-weight: bold;
+}
+
+.chat-mode-selector button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.language-selector select {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.language-selector select option {
+  background-color: #4a6fa5;
+  color: white;
+}
+
+.language-selector select:focus {
+  outline: none;
+  border-color: white;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: #f9f9f9;
+}
+
+.welcome-message {
+  text-align: center;
+  color: #666;
+  padding: 20px;
+  font-style: italic;
+}
+
+.welcome-message p {
+  margin: 10px 0;
+}
+
+.message {
+  display: flex;
+  max-width: 80%;
+}
+
+.message.user-message {
+  align-self: flex-end;
+}
+
+.message.bot-message {
+  align-self: flex-start;
+}
+
+.message-content {
+  padding: 10px 15px;
+  border-radius: 18px;
+  word-wrap: break-word;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.user-message .message-content {
+  background-color: #4a6fa5;
+  color: white;
+  border-bottom-right-radius: 5px;
+}
+
+.bot-message .message-content {
+  background-color: #e5e5ea;
+  color: #333;
+  border-bottom-left-radius: 5px;
+}
+
+.message-sources {
+  margin-top: 5px;
+  font-size: 0.8em;
+  color: #666;
+}
+
+.source {
+  background-color: #d0e0ff;
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin: 0 2px;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 0.8em;
+  display: block;
+  margin-top: 5px;
+}
+
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  padding: 5px 0;
+}
+
+.typing-indicator span {
+  height: 8px;
+  width: 8px;
+  background-color: #999;
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0 2px;
+  animation: typing 1s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.chat-input-area {
+  padding: 15px;
+  border-top: 1px solid #ddd;
+  background-color: white;
+}
+
+.selected-text-preview {
+  background-color: #e8f4fd;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  font-size: 0.9em;
+}
+
+.selected-text-preview em {
+  color: #2a5c8c;
+}
+
+.input-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.input-controls textarea {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: none;
+  font-family: inherit;
+}
+
+.input-controls textarea:focus {
+  outline: none;
+  border-color: #4a6fa5;
+  box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.2);
+}
+
+.send-button {
+  background-color: #4a6fa5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.send-button:hover:not(:disabled) {
+  background-color: #3a5a80;
+}
+
+.send-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .chat-widget {
+    height: 400px;
+    width: calc(100vw - 40px);
+    max-width: calc(100vw - 40px);
+  }
+
+  .message {
+    max-width: 90%;
+  }
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
@@ -23,37 +23,23 @@ function HomepageHeader() {
   const logout = auth?.logout || (() => {});
   const preferences = personalization?.preferences || null;
 
+
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
         <h1 className="hero__title">{siteConfig.title}</h1>
         <p className="hero__subtitle">{siteConfig.tagline}</p>
-        <div className={styles.buttons}>
+        <div className={styles.contentWithImage}>
+          <div className={styles.heroImageContainer}>
+            <img src="/img/hero.jpg" alt="Hero" className={styles.heroImage} />
+          </div>
+        </div>
+        <div className={styles.centeredButton}>
           <Link
             className="button button--secondary button--lg"
             to={currentLocale === 'ur' ? "/docs/ur/intro" : "/docs/intro"}>
             {currentLocale === 'ur' ? "فزیکل اے آئی اور روبوٹکس سیکھیں" : "Start Learning Physical AI & Robotics"}
           </Link>
-          {currentUser ? (
-            <div className={styles.userActions}>
-              <span className={styles.userGreeting}>Welcome, {currentUser.profile?.name || currentUser.email}</span>
-              <Link className="button button--primary button--lg margin-left--sm" to="/profile">
-                Profile
-              </Link>
-              <button className="button button--outline button--lg margin-left--sm" onClick={logout}>
-                Logout
-              </button>
-            </div>
-          ) : (
-            <div className={styles.userActions}>
-              <Link className="button button--primary button--lg margin-left--sm" to="/login">
-                Login
-              </Link>
-              <Link className="button button--outline button--lg margin-left--sm" to="/register">
-                Register
-              </Link>
-            </div>
-          )}
         </div>
         {currentUser && preferences && (
           <div className={clsx('margin-top--md', styles.userPreferences)}>
@@ -66,8 +52,26 @@ function HomepageHeader() {
 }
 
 export default function Home() {
-  const { siteConfig } = useDocusaurusContext();
+  // Redirect to login page by default
+  if (typeof window !== 'undefined') {
+    window.location.href = '/login';
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '18px'
+      }}>
+        Redirecting to login...
+      </div>
+    );
+  }
 
+  const { siteConfig } = useDocusaurusContext();
+  const { currentUser, loading } = useAuth();
+
+  // Show the normal home page for all users (authenticated or not)
   return (
     <Layout
       title={`Hello from ${siteConfig.title}`}

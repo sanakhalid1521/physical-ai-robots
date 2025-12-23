@@ -36,3 +36,7 @@ We recommend starting with Chapter 1 and progressing sequentially, as concepts b
 [Start with Chapter 1: Introduction to Physical AI](./chapter-1/intro.md)
 
 If you're new to this field, we recommend creating an account to track your progress and personalize your learning experience.
+
+import QuizButton from '@site/src/components/QuizButton/QuizButton';
+
+<QuizButton chapterNumber={1} lessonTitle="Introduction" />

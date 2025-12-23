@@ -32,3 +32,7 @@ const ball = {
 ```
 
 گیند کی حرکت کے لیے فزکس کے مساوات کو لاگو کریں اور دیکھیں کہ مختلف پیرامیٹرز کے ساتھ یہ کیسے مختلف طرز عمل کرتا ہے۔
+
+import QuizButton from '@site/src/components/QuizButton/QuizButton';
+
+<QuizButton chapterNumber={1} lessonTitle="جسما نی ای آئی کا تعارف" />

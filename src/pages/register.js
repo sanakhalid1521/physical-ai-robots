@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import Layout from '@theme/Layout';
 import { useHistory } from '@docusaurus/router';
 import { useAuth } from '../contexts/AuthContext';
-import styles from './register.module.css';
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -57,230 +55,522 @@ function RegisterPage() {
 
   if (isRegistered) {
     return (
-      <Layout title="Welcome!" description="Welcome to the Physical AI textbook">
-        <div className="container margin-vert--lg">
-          <div className="row">
-            <div className="col col--6 col--offset-3">
-              <div className="card text--center">
-                <div className="card__body">
-                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
-                    <i className="fas fa-check-circle" style={{ color: '#4CAF50' }}></i>
-                  </div>
-                  <h2>Welcome, {formData.name}!</h2>
-                  <p className="margin-bottom--lg">
-                    Your account has been successfully created. You're now ready to start your journey in Physical AI and Robotics!
-                  </p>
-                  <div className="button-group button-group--block">
-                    <a href="/" className="button button--primary button--lg">
-                      Start Learning
-                    </a>
-                  </div>
-                  <div className="margin-top--lg">
-                    <p>Or continue to explore:</p>
-                    <div className="button-group">
-                      <a href="/docs/chapter-1/intro" className="button button--secondary button--sm">
-                        Textbook
-                      </a>
-                      <a href="/author" className="button button--secondary button--sm">
-                        About Author
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+        padding: '2rem 1rem'
+      }}>
+        <div style={{
+          width: '100%',
+          maxWidth: '500px',
+          margin: '0 auto'
+        }}>
+          <div style={{
+            textAlign: 'center',
+            marginBottom: '2rem'
+          }}>
+            <h1 style={{
+              fontSize: '2rem',
+              color: '#333',
+              marginBottom: '0.5rem'
+            }}>
+              Physical AI & Humanoid Robotics
+            </h1>
+            <p style={{
+              color: '#666',
+              fontSize: '1rem'
+            }}>
+              Welcome to the textbook
+            </p>
           </div>
-        </div>
-      </Layout>
-    );
-  }
 
-  return (
-    <Layout title="Register" description="Register for the Physical AI textbook">
-      <div className="container margin-vert--lg">
-        <div className="row">
-          <div className="col col--6 col--offset-3">
-            <div className="card">
-              <div className="card__header text--center">
-                <h2>Create Your Account</h2>
-                <p>Tell us about your background to personalize your learning experience</p>
-              </div>
-              <div className="card__body">
-                {error && <div className="alert alert--danger">{error}</div>}
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            padding: '2rem',
+            textAlign: 'center'
+          }}>
+            <div style={{ marginBottom: '1rem' }}>
+              <img
+                src="/img/celebrate.png"
+                alt="Celebration"
+                style={{
+                  width: '120px',
+                  height: '120px',
+                  objectFit: 'contain',
+                  margin: '0 auto',
+                  display: 'block'
+                }}
+              />
+            </div>
+            <h2 style={{
+              margin: '0 0 1rem 0',
+              fontSize: '1.5rem',
+              color: '#333'
+            }}>
+              Welcome, {formData.name}!
+            </h2>
+            <p style={{
+              marginBottom: '1.5rem',
+              color: '#666',
+              lineHeight: '1.6'
+            }}>
+              Your account has been successfully created. You're now ready to start your journey in Physical AI and Robotics!
+            </p>
 
-                <form onSubmit={handleRegister}>
-                  <div className="margin-bottom--md">
-                    <label htmlFor="name">Full Name</label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      className="form-control"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <a
+                href="/"
+                style={{
+                  display: 'inline-block',
+                  padding: '0.75rem 1.5rem',
+                  backgroundColor: '#FF00FF',
+                  color: 'white',
+                  textDecoration: 'none',
+                  borderRadius: '4px',
+                  fontSize: '1rem',
+                  fontWeight: '500'
+                }}
+                className="button button--primary button--lg"
+              >
+                Start Learning
+              </a>
+            </div>
 
-                  <div className="margin-bottom--md">
-                    <label htmlFor="email">Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      className="form-control"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="margin-bottom--md">
-                    <label htmlFor="password">Password</label>
-                    <input
-                      type="password"
-                      id="password"
-                      name="password"
-                      className="form-control"
-                      value={formData.password}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="margin-bottom--lg">
-                    <label className="form-label">Programming Level</label>
-                    <div className={styles.radioGroup}>
-                      {['beginner', 'intermediate', 'advanced'].map((level) => (
-                        <label key={level} className={`${styles.radioOption} ${formData.programmingLevel === level ? styles.selected : ''}`}>
-                          <input
-                            type="radio"
-                            name="programmingLevel"
-                            value={level}
-                            checked={formData.programmingLevel === level}
-                            onChange={handleChange}
-                            className={styles.radioInput}
-                          />
-                          <span className={styles.radioText}>
-                            {level.charAt(0).toUpperCase() + level.slice(1)}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="margin-bottom--lg">
-                    <label className="form-label">Robotics Familiarity</label>
-                    <div className={styles.radioGroup}>
-                      {['none', 'basic', 'intermediate', 'advanced'].map((level) => (
-                        <label key={level} className={`${styles.radioOption} ${formData.roboticsFamiliarity === level ? styles.selected : ''}`}>
-                          <input
-                            type="radio"
-                            name="roboticsFamiliarity"
-                            value={level}
-                            checked={formData.roboticsFamiliarity === level}
-                            onChange={handleChange}
-                            className={styles.radioInput}
-                          />
-                          <span className={styles.radioText}>
-                            {level === 'none' ? 'No Experience' :
-                             level === 'basic' ? 'Basic Knowledge' :
-                             level.charAt(0).toUpperCase() + level.slice(1)}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="margin-bottom--lg">
-                    <label className="form-label">Learning Goal</label>
-                    <div className={styles.radioGroup}>
-                      {['personalInterest', 'academic', 'professional', 'hobby'].map((goal) => (
-                        <label key={goal} className={`${styles.radioOption} ${formData.learningGoal === goal ? styles.selected : ''}`}>
-                          <input
-                            type="radio"
-                            name="learningGoal"
-                            value={goal}
-                            checked={formData.learningGoal === goal}
-                            onChange={handleChange}
-                            className={styles.radioInput}
-                          />
-                          <span className={styles.radioText}>
-                            {goal === 'personalInterest' ? 'Personal Interest' :
-                             goal === 'academic' ? 'Academic Study' :
-                             goal === 'professional' ? 'Professional Development' :
-                             'For Fun/Hobby'}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="margin-bottom--lg">
-                    <label className="form-label">Time Commitment</label>
-                    <div className={styles.radioGroup}>
-                      {['fewHours', 'oneHour', 'fewTimes', 'daily'].map((time) => (
-                        <label key={time} className={`${styles.radioOption} ${formData.timeCommitment === time ? styles.selected : ''}`}>
-                          <input
-                            type="radio"
-                            name="timeCommitment"
-                            value={time}
-                            checked={formData.timeCommitment === time}
-                            onChange={handleChange}
-                            className={styles.radioInput}
-                          />
-                          <span className={styles.radioText}>
-                            {time === 'fewHours' ? 'A few hours a week' :
-                             time === 'oneHour' ? '1 hour daily' :
-                             time === 'fewTimes' ? 'A few times a week' :
-                             'Daily'}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="margin-bottom--lg">
-                    <label className="form-label">Prior Experience</label>
-                    <div className={styles.radioGroup}>
-                      {['none', 'basic', 'some', 'extensive'].map((exp) => (
-                        <label key={exp} className={`${styles.radioOption} ${formData.priorExperience === exp ? styles.selected : ''}`}>
-                          <input
-                            type="radio"
-                            name="priorExperience"
-                            value={exp}
-                            checked={formData.priorExperience === exp}
-                            onChange={handleChange}
-                            className={styles.radioInput}
-                          />
-                          <span className={styles.radioText}>
-                            {exp === 'none' ? 'No Prior Experience' :
-                             exp === 'basic' ? 'Basic Experience' :
-                             exp === 'some' ? 'Some Experience' :
-                             'Extensive Experience'}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="button-group button-group--block">
-                    <button type="submit" className="button button--primary">
-                      Create Account
-                    </button>
-                  </div>
-                </form>
-              </div>
-              <div className="card__footer text--center">
-                <p>
-                  Already have an account? <a href="/login">Login here</a>
-                </p>
+            <div style={{
+              marginTop: '1.5rem',
+              paddingTop: '1.5rem',
+              borderTop: '1px solid #eee'
+            }}>
+              <p style={{
+                margin: '0 0 1rem 0',
+                color: '#666',
+                fontSize: '0.9rem'
+              }}>
+                Or continue to explore:
+              </p>
+              <div style={{
+                display: 'flex',
+                gap: '0.5rem',
+                justifyContent: 'center'
+              }}>
+                <a
+                  href="/docs/chapter-1/intro"
+                  style={{
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#f0f0f0',
+                    color: '#333',
+                    textDecoration: 'none',
+                    borderRadius: '4px',
+                    fontSize: '0.85rem'
+                  }}
+                  className="button button--secondary button--sm"
+                >
+                  Textbook
+                </a>
+                <a
+                  href="/author"
+                  style={{
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#f0f0f0',
+                    color: '#333',
+                    textDecoration: 'none',
+                    borderRadius: '4px',
+                    fontSize: '0.85rem'
+                  }}
+                  className="button button--secondary button--sm"
+                >
+                  About Author
+                </a>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </Layout>
+    );
+  }
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+      padding: '2rem 1rem'
+    }}>
+      <div style={{
+        width: '100%',
+        maxWidth: '600px',
+        margin: '0 auto'
+      }}>
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '2rem'
+        }}>
+          <h1 style={{
+            fontSize: '2rem',
+            color: '#333',
+            marginBottom: '0.5rem'
+          }}>
+            Physical AI & Humanoid Robotics
+          </h1>
+          <p style={{
+            color: '#666',
+            fontSize: '1rem'
+          }}>
+            Create your account
+          </p>
+        </div>
+
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          padding: '2rem'
+        }}>
+          <div style={{
+            textAlign: 'center',
+            marginBottom: '1.5rem'
+          }}>
+            <h2 style={{
+              margin: '0 0 0.5rem 0',
+              fontSize: '1.5rem',
+              color: '#333'
+            }}>
+              Create Your Account
+            </h2>
+            <p style={{
+              margin: 0,
+              color: '#666',
+              fontSize: '0.9rem'
+            }}>
+              Tell us about your background to personalize your learning experience
+            </p>
+          </div>
+
+          {error && (
+            <div style={{
+              backgroundColor: '#fee',
+              color: '#c33',
+              padding: '0.75rem',
+              borderRadius: '4px',
+              marginBottom: '1rem',
+              border: '1px solid #fcc'
+            }}>
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleRegister}>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label htmlFor="name" style={{
+                display: 'block',
+                marginBottom: '0.5rem',
+                fontWeight: '500',
+                color: '#333'
+              }}>
+                Full Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '1rem'
+                }}
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label htmlFor="email" style={{
+                display: 'block',
+                marginBottom: '0.5rem',
+                fontWeight: '500',
+                color: '#333'
+              }}>
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '1rem'
+                }}
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label htmlFor="password" style={{
+                display: 'block',
+                marginBottom: '0.5rem',
+                fontWeight: '500',
+                color: '#333'
+              }}>
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '1rem'
+                }}
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label className="form-label" style={{
+                display: 'block',
+                marginBottom: '0.75rem',
+                fontWeight: '500',
+                color: '#333'
+              }}>
+                Programming Level
+              </label>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {['beginner', 'intermediate', 'advanced'].map((level) => (
+                  <label key={level} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0.5rem',
+                    border: formData.programmingLevel === level ? '2px solid #FF00FF' : '1px solid #ddd',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    backgroundColor: formData.programmingLevel === level ? '#fff0ff' : 'white'
+                  }}>
+                    <input
+                      type="radio"
+                      name="programmingLevel"
+                      value={level}
+                      checked={formData.programmingLevel === level}
+                      onChange={handleChange}
+                      style={{ marginRight: '0.5rem' }}
+                    />
+                    <span>{level.charAt(0).toUpperCase() + level.slice(1)}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label className="form-label" style={{
+                display: 'block',
+                marginBottom: '0.75rem',
+                fontWeight: '500',
+                color: '#333'
+              }}>
+                Robotics Familiarity
+              </label>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {['none', 'basic', 'intermediate', 'advanced'].map((level) => (
+                  <label key={level} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0.5rem',
+                    border: formData.roboticsFamiliarity === level ? '2px solid #FF00FF' : '1px solid #ddd',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    backgroundColor: formData.roboticsFamiliarity === level ? '#fff0ff' : 'white'
+                  }}>
+                    <input
+                      type="radio"
+                      name="roboticsFamiliarity"
+                      value={level}
+                      checked={formData.roboticsFamiliarity === level}
+                      onChange={handleChange}
+                      style={{ marginRight: '0.5rem' }}
+                    />
+                    <span>
+                      {level === 'none' ? 'No Experience' :
+                       level === 'basic' ? 'Basic Knowledge' :
+                       level.charAt(0).toUpperCase() + level.slice(1)}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label className="form-label" style={{
+                display: 'block',
+                marginBottom: '0.75rem',
+                fontWeight: '500',
+                color: '#333'
+              }}>
+                Learning Goal
+              </label>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {['personalInterest', 'academic', 'professional', 'hobby'].map((goal) => (
+                  <label key={goal} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0.5rem',
+                    border: formData.learningGoal === goal ? '2px solid #FF00FF' : '1px solid #ddd',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    backgroundColor: formData.learningGoal === goal ? '#fff0ff' : 'white'
+                  }}>
+                    <input
+                      type="radio"
+                      name="learningGoal"
+                      value={goal}
+                      checked={formData.learningGoal === goal}
+                      onChange={handleChange}
+                      style={{ marginRight: '0.5rem' }}
+                    />
+                    <span>
+                      {goal === 'personalInterest' ? 'Personal Interest' :
+                       goal === 'academic' ? 'Academic Study' :
+                       goal === 'professional' ? 'Professional Development' :
+                       'For Fun/Hobby'}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label className="form-label" style={{
+                display: 'block',
+                marginBottom: '0.75rem',
+                fontWeight: '500',
+                color: '#333'
+              }}>
+                Time Commitment
+              </label>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {['fewHours', 'oneHour', 'fewTimes', 'daily'].map((time) => (
+                  <label key={time} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0.5rem',
+                    border: formData.timeCommitment === time ? '2px solid #FF00FF' : '1px solid #ddd',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    backgroundColor: formData.timeCommitment === time ? '#fff0ff' : 'white'
+                  }}>
+                    <input
+                      type="radio"
+                      name="timeCommitment"
+                      value={time}
+                      checked={formData.timeCommitment === time}
+                      onChange={handleChange}
+                      style={{ marginRight: '0.5rem' }}
+                    />
+                    <span>
+                      {time === 'fewHours' ? 'A few hours a week' :
+                       time === 'oneHour' ? '1 hour daily' :
+                       time === 'fewTimes' ? 'A few times a week' :
+                       'Daily'}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label className="form-label" style={{
+                display: 'block',
+                marginBottom: '0.75rem',
+                fontWeight: '500',
+                color: '#333'
+              }}>
+                Prior Experience
+              </label>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {['none', 'basic', 'some', 'extensive'].map((exp) => (
+                  <label key={exp} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0.5rem',
+                    border: formData.priorExperience === exp ? '2px solid #FF00FF' : '1px solid #ddd',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    backgroundColor: formData.priorExperience === exp ? '#fff0ff' : 'white'
+                  }}>
+                    <input
+                      type="radio"
+                      name="priorExperience"
+                      value={exp}
+                      checked={formData.priorExperience === exp}
+                      onChange={handleChange}
+                      style={{ marginRight: '0.5rem' }}
+                    />
+                    <span>
+                      {exp === 'none' ? 'No Prior Experience' :
+                       exp === 'basic' ? 'Basic Experience' :
+                       exp === 'some' ? 'Some Experience' :
+                       'Extensive Experience'}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                backgroundColor: '#FF00FF',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '1rem',
+                cursor: 'pointer',
+                fontWeight: '500'
+              }}
+              className="button button--primary"
+            >
+              Create Account
+            </button>
+          </form>
+
+          <div style={{
+            textAlign: 'center',
+            marginTop: '1.5rem',
+            paddingTop: '1.5rem',
+            borderTop: '1px solid #eee'
+          }}>
+            <p style={{
+              margin: 0,
+              color: '#666'
+            }}>
+              Already have an account? <a href="/login" style={{ color: '#FF00FF' }}>Login here</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -56,3 +56,7 @@ title: ' lesson 2: روبوٹکس کے لیے کمپیوٹر وژن'
 - اشیاء کی متغیرات کے مطابق ایڈجسٹمنٹ
 
 ## وژن میں گہری سیکھ
+
+import QuizButton from '@site/src/components/QuizButton/QuizButton';
+
+<QuizButton chapterNumber={4} lessonTitle="روبوٹکس کے لیے کمپیوٹر وژن" />

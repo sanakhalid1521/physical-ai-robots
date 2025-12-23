@@ -29,3 +29,7 @@ import SummaryButton from '@site/src/components/SummaryButton';
   title="Chapter 1 Introduction Summary"
   content="Physical AI represents the convergence of artificial intelligence and the physical world, focusing on systems that perceive their environment through sensors, reason about physical interactions, execute actions through actuators, and learn from physical experiences. It has applications in robotics, autonomous vehicles, smart manufacturing, healthcare, and environmental monitoring."
 />
+
+import QuizButton from '@site/src/components/QuizButton/QuizButton';
+
+<QuizButton chapterNumber={1} lessonTitle="Introduction to Physical AI" />

@@ -34,8 +34,11 @@ Consider the following joint types:
 Sketch out how many degrees of freedom you think are needed for different tasks like reaching, grasping, and manipulation.
 
 import SummaryButton from '@site/src/components/SummaryButton';
+import QuizButton from '@site/src/components/QuizButton/QuizButton';
 
 <SummaryButton
   title="Lesson 2 Summary: Basics of Humanoid Robotics"
   content="Humanoid robots are designed with human-like characteristics to interact with human environments. They consist of key components including actuators for movement, sensors for perception, controllers for coordination, and power systems. The anatomy includes a head with sensors, torso, arms with hands, and legs. This lesson covered the fundamental components and design considerations for humanoid robots, including the kinematic chains and degrees of freedom needed for various tasks."
 />
+
+<QuizButton chapterNumber={1} lessonTitle="Basics of Humanoid Robotics" />

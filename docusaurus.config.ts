@@ -135,8 +135,10 @@ const config: Config = {
           className: 'navbar-login-btn',
         },
         {
-          type: 'localeDropdown',
+          to: '/create',
+          label: 'Create',
           position: 'right',
+          className: 'navbar-create-btn',
         },
         {
           href: 'https://github.com/facebook/docusaurus',

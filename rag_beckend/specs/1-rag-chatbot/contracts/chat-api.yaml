@@ -1,0 +1,113 @@
+openapi: 3.0.0
+info:
+  title: RAG Chatbot API
+  description: API for the Retrieval-Augmented Generation Chatbot
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://api.rag-chatbot.com
+    description: Production server
+
+paths:
+  /api/chat:
+    post:
+      summary: Submit a chat message and receive a response
+      description: Process user query with RAG approach, supporting both full book and selected text modes
+      operationId: chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            example:
+              message: "What are the main themes of this book?"
+              mode: "book"
+              selectedText: "This is the selected text from the book."
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              example:
+                answer: "The main themes of the book include..."
+                sources: ["chapter-1.md", "chapter-3.md"]
+                language: "en"
+        '400':
+          description: Bad request - invalid input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+        - mode
+      properties:
+        message:
+          type: string
+          description: The user's question or message
+          example: "What are the main themes of this book?"
+        mode:
+          type: string
+          enum: [book, selection]
+          description: The chat mode to use
+          example: "book"
+        selectedText:
+          type: string
+          description: The user-highlighted text (required when mode is 'selection')
+          example: "This is the selected text from the book."
+      example:
+        message: "What are the main themes of this book?"
+        mode: "book"
+        selectedText: "This is the selected text from the book."
+
+    ChatResponse:
+      type: object
+      required:
+        - answer
+        - language
+      properties:
+        answer:
+          type: string
+          description: The chatbot's response to the user's question
+          example: "The main themes of the book include..."
+        sources:
+          type: array
+          items:
+            type: string
+          description: List of source identifiers used to generate the answer
+          example: ["chapter-1.md", "chapter-3.md"]
+        language:
+          type: string
+          enum: [en, ur]
+          description: The language of the response
+          example: "en"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+          example: "BAD_REQUEST"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Mode must be either 'book' or 'selection'"

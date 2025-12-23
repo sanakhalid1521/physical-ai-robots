@@ -64,6 +64,9 @@ function ChapterCard({ title, description, to, urTitle, urDescription, urTo }) {
   return (
     <div className={clsx('col col--2', styles.chapterCard)}>
       <div className={clsx('card', styles.card)}>
+        <div className={clsx('card__image', styles.cardImage)}>
+          <img src="/img/card.webp" alt={displayTitle} className={styles.cardImage} />
+        </div>
         <div className="card__body">
           <h3 className={styles.cardTitle}>{displayTitle}</h3>
           <p className={styles.cardDescription}>{displayDescription}</p>

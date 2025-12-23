@@ -41,8 +41,11 @@ Human walking involves complex coordination of muscles, joints, and balance syst
 Research the difference between walking and running in terms of support phases. Calculate how the support polygon changes during different phases of human walking by observing your own gait or video analysis. Note how the center of mass moves relative to the support polygon during walking.
 
 import SummaryButton from '@site/src/components/SummaryButton';
+import QuizButton from '@site/src/components/QuizButton/QuizButton';
 
 <SummaryButton
   title="Lesson 1 Summary: Locomotion Principles"
   content="Locomotion for humanoid robots involves the challenging task of maintaining balance while moving in a human-like manner. Key concepts include static locomotion (stable but slow) and dynamic locomotion (faster with precise control). Important principles include the Zero-Moment Point (ZMP), support polygon, and gait phases (single support, double support, swing phase). This lesson covered the biomechanics of walking and the fundamental principles of bipedal locomotion for humanoid robots."
 />
+
+<QuizButton chapterNumber={3} lessonTitle="Locomotion Principles" />

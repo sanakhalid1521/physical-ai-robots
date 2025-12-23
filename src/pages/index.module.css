@@ -8,6 +8,7 @@
   text-align: center;
   position: relative;
   overflow: hidden;
+  background-color: #f8bbd0; /* Rose pink background */
 }
 
 @media screen and (max-width: 996px) {
@@ -22,6 +23,40 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 1rem;
+}
+
+.contentWithImage {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.heroTextContent {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.centeredButton {
+  text-align: center;
+  width: 100%;
+}
+
+.heroImageContainer {
+  flex: 1;
+  min-width: 300px;
+}
+
+.heroImage {
+  max-width: 100%;
+  height: auto;
+  max-height: 200px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .userActions {

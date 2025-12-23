@@ -117,3 +117,7 @@ title: ' lesson 3: انسان-روبوٹ تعامل'
 5. صورت حال سے نمٹے جہاں طالب علم ناراض ہو جائے
 
 تعامل کا فلو اسکیچ کریں اور اس تعامل کو فعال کرنے کے لیے ضروری کلیدی ٹیکنالوجیز کی شناخت کریں۔
+
+import QuizButton from '@site/src/components/QuizButton/QuizButton';
+
+<QuizButton chapterNumber={5} lessonTitle="انسان-روبوٹ تعامل" />
