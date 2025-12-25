@@ -78,7 +78,7 @@ class RAGService:
                 # Create the collection with proper vector configuration
                 self.qdrant_client.create_collection(
                     collection_name="physical_ai_docs",
-                    vectors_config=models.VectorParams(size=1024, distance=models.Distance.COSINE),
+                    vectors_config=models.VectorParams(size=384, distance=models.Distance.COSINE),  # Updated to match Cohere's embedding size
                 )
                 print("Collection 'physical_ai_docs' created successfully")
             except Exception as create_error:
@@ -98,10 +98,10 @@ class RAGService:
             text_hash = hashlib.md5(text.encode()).hexdigest()
             # Convert hash to a list of floats (simplified approach)
             vector = [float(ord(c) % 1000) / 1000.0 for c in text_hash]
-            # Pad or truncate to expected size (1024 as per collection config)
-            while len(vector) < 1024:
+            # Pad or truncate to expected size (384 as per collection config)
+            while len(vector) < 384:
                 vector.append(0.0)
-            return vector[:1024]
+            return vector[:384]
 
         try:
             response = self.cohere_client.embed(
@@ -116,9 +116,9 @@ class RAGService:
             import hashlib
             text_hash = hashlib.md5(text.encode()).hexdigest()
             vector = [float(ord(c) % 1000) / 1000.0 for c in text_hash]
-            while len(vector) < 1024:
+            while len(vector) < 384:
                 vector.append(0.0)
-            return vector[:1024]
+            return vector[:384]
 
     async def store_document(self, content: str, metadata: dict = None) -> str:
         """Store a document in Qdrant with embeddings"""
@@ -170,7 +170,7 @@ class RAGService:
                 from qdrant_client.http import models
                 self.qdrant_client.create_collection(
                     collection_name="physical_ai_docs",
-                    vectors_config=models.VectorParams(size=1024, distance=models.Distance.COSINE),
+                    vectors_config=models.VectorParams(size=384, distance=models.Distance.COSINE),  # Updated to match Cohere's embedding size
                 )
                 print("Collection 'physical_ai_docs' created successfully")
             except Exception as create_error:
