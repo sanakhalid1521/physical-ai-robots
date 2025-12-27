@@ -83,9 +83,17 @@ class RAGService:
         """Load documents from Neon Postgres into memory for searching"""
         if hasattr(self.db_manager, 'has_pool') and self.db_manager.has_pool:
             try:
-                # Get all documents from the database
+                # Get all documents from the database - use a direct approach to get all documents
+                # Instead of using search_documents with empty query, let's try to get all documents
+                # First, let's get the count to understand what we're working with
+                async with self.db_manager.pool.acquire() as conn:
+                    count = await conn.fetchval("SELECT COUNT(*) FROM documents")
+                    logger.info(f"Total documents in database: {count}")
+
+                # Now get all documents using the search method with empty query
+                # The database method should return all documents when query is empty
                 db_docs = await self.db_manager.search_documents("", limit=1000)  # Get all documents
-                logger.info(f"Loading {len(db_docs)} documents from database into memory")
+                logger.info(f"Retrieved {len(db_docs)} documents from database search")
 
                 for doc in db_docs:
                     doc_id = doc.get('id') or doc.get('doc_id', str(uuid.uuid4()))
@@ -111,6 +119,8 @@ class RAGService:
                 return len(db_docs)
             except Exception as e:
                 logger.error(f"Error loading documents from database: {e}")
+                import traceback
+                traceback.print_exc()
                 return 0
         else:
             logger.warning("Database manager not available or not connected")
