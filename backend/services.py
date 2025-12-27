@@ -134,7 +134,7 @@ class RAGService:
                         self.payload = payload
                         self.score = score
 
-                # Return empty list as search results
+                # Return empty results as expected by the search function
                 return []
 
         return MockQdrantClient()
