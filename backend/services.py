@@ -5,6 +5,8 @@ from datetime import datetime
 from dotenv import load_dotenv
 from database import DatabaseManager
 import logging
+import hashlib
+from collections import defaultdict
 
 load_dotenv()
 
@@ -12,17 +14,13 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Try to import cohere and qdrant_client with fallbacks
+# Try to import cohere with fallbacks
 try:
     import cohere
-    from qdrant_client import QdrantClient
-    from qdrant_client.http import models
     COHERE_AVAILABLE = True
-    QDRANT_AVAILABLE = True
 except ImportError as e:
-    logger.warning(f"Failed to import required packages: {e}")
+    logger.warning(f"Failed to import cohere: {e}")
     COHERE_AVAILABLE = False
-    QDRANT_AVAILABLE = False
 
 from pydantic import BaseModel
 
@@ -52,158 +50,34 @@ class RAGService:
             logger.warning("Cohere package not available. Some features will be disabled.")
             self.cohere_client = None
 
-        # Initialize Qdrant client if available
-        if QDRANT_AVAILABLE:
-            try:
-                qdrant_url = os.getenv("QDRANT_URL")
-                qdrant_api_key = os.getenv("QDRANT_API_KEY")
-
-                # Only try to connect to cloud if we have both URL and API key and the URL is not a placeholder
-                if qdrant_url and qdrant_api_key and "your_" not in qdrant_url and "example" not in qdrant_url:
-                    try:
-                        self.qdrant_client = QdrantClient(
-                            url=qdrant_url,
-                            api_key=qdrant_api_key,
-                            prefer_grpc=True
-                        )
-                        logger.info("Connected to Qdrant Cloud successfully")
-                    except Exception as e:
-                        logger.error(f"Failed to connect to Qdrant Cloud: {e}")
-                        logger.info("Using in-memory storage for testing")
-                        # Use in-memory Qdrant client
-                        self.qdrant_client = QdrantClient(":memory:")
-                else:
-                    logger.info("QDRANT_URL or QDRANT_API_KEY not set or using placeholder values. Using in-memory storage for testing")
-                    # Initialize in-memory Qdrant client
-                    self.qdrant_client = QdrantClient(":memory:")
-
-                # Verify that the client has the required methods after initialization
-                # Some Qdrant versions might have different method names or require additional setup
-                if not hasattr(self.qdrant_client, 'search'):
-                    logger.warning("Qdrant client doesn't have 'search' method after initialization")
-                    # Try to create a wrapped client that ensures all methods exist
-                    self.qdrant_client = self._create_wrapped_qdrant_client(self.qdrant_client)
-            except Exception as e:
-                logger.error(f"Error initializing Qdrant client: {e}")
-                # Create a mock client that handles the search method properly
-                self.qdrant_client = self._create_mock_qdrant_client()
-        else:
-            logger.warning("Qdrant package not available. Using mock client.")
-            self.qdrant_client = self._create_mock_qdrant_client()
+        # Initialize in-memory document storage instead of Qdrant
+        self.documents = {}  # Store documents by ID
+        self.inverted_index = defaultdict(list)  # Simple text-based search index
 
         # Initialize database manager
         self.db_manager = DatabaseManager()
 
-        # Ensure the collection exists (this will create it if needed)
-        self._ensure_collection_exists()
+        logger.info("RAGService initialized with in-memory search (no Qdrant dependency)")
 
-        # Verify that the client has the required methods
-        if not hasattr(self.qdrant_client, 'search'):
-            logger.warning("Qdrant client doesn't have 'search' method. This may indicate an issue with the client initialization.")
+    def _simple_tokenize(self, text):
+        """Simple tokenization for building search index"""
+        import re
+        # Simple word tokenization, convert to lowercase
+        tokens = re.findall(r'\b\w+\b', text.lower())
+        return set(tokens)  # Use set to get unique tokens
 
-    def _create_mock_qdrant_client(self):
-        """Create a mock Qdrant client for fallback when initialization fails"""
-        logger.info("Creating mock Qdrant client")
+    def _calculate_similarity(self, query_tokens, doc_tokens):
+        """Calculate simple Jaccard similarity between query and document"""
+        query_set = set(query_tokens)
+        doc_set = set(doc_tokens)
 
-        class MockQdrantClient:
-            def __init__(self):
-                self.collections = {}
-                logger.info("Mock Qdrant client initialized")
+        if len(query_set) == 0 or len(doc_set) == 0:
+            return 0.0
 
-            def get_collection(self, name):
-                if name not in self.collections:
-                    raise Exception(f"Collection {name} does not exist")
-                return {"name": name, "status": "found"}
+        intersection = query_set.intersection(doc_set)
+        union = query_set.union(doc_set)
 
-            def create_collection(self, collection_name, vectors_config):
-                self.collections[collection_name] = {
-                    "vectors_config": vectors_config,
-                    "points": []
-                }
-                logger.info(f"Mock collection '{collection_name}' created")
-
-            def upsert(self, collection_name, points):
-                if collection_name not in self.collections:
-                    self.collections[collection_name] = {"points": []}
-                if "points" not in self.collections[collection_name]:
-                    self.collections[collection_name]["points"] = []
-                self.collections[collection_name]["points"].extend(points)
-                logger.info(f"Mock upsert: added {len(points)} points to '{collection_name}'")
-
-            def search(self, collection_name, query_vector, limit, with_payload=True):
-                # Return empty results for search
-                logger.info(f"Mock search called on '{collection_name}' with limit {limit}")
-                # Return a mock result that matches the expected structure
-
-                class MockResult:
-                    def __init__(self, id, payload, score):
-                        self.id = id
-                        self.payload = payload
-                        self.score = score
-
-                # Return empty results as expected by the search function
-                return []
-
-        return MockQdrantClient()
-
-    def _create_wrapped_qdrant_client(self, original_client):
-        """Create a wrapper around an existing Qdrant client to ensure all required methods exist"""
-        logger.info("Creating wrapped Qdrant client to ensure all methods exist")
-
-        class WrappedQdrantClient:
-            def __init__(self, original_client):
-                self._original_client = original_client
-                logger.info("Wrapped Qdrant client initialized")
-
-            def __getattr__(self, name):
-                # Delegate to the original client for any method not explicitly defined
-                return getattr(self._original_client, name)
-
-            def search(self, *args, **kwargs):
-                # Try to use the original search method first
-                if hasattr(self._original_client, 'search'):
-                    return self._original_client.search(*args, **kwargs)
-                # If not available, try alternative method names (like query_points)
-                elif hasattr(self._original_client, 'query_points'):
-                    return self._original_client.query_points(*args, **kwargs)
-                # If neither exists, return empty results
-                else:
-                    logger.warning("No search method found in Qdrant client, returning empty results")
-                    # Create mock results to match expected format
-                    class MockResult:
-                        def __init__(self, id, payload, score):
-                            self.id = id
-                            self.payload = payload
-                            self.score = score
-
-                    return []
-
-        return WrappedQdrantClient(original_client)
-
-    def _ensure_collection_exists(self):
-        """Ensure the Qdrant collection exists"""
-        try:
-            # Check if the collection exists
-            self.qdrant_client.get_collection("physical_ai_docs")
-            logger.info("Collection 'physical_ai_docs' exists")
-        except Exception as e:
-            logger.info(f"Collection doesn't exist, creating it: {e}")
-            try:
-                # Create the collection with proper vector configuration
-                if QDRANT_AVAILABLE:
-                    self.qdrant_client.create_collection(
-                        collection_name="physical_ai_docs",
-                        vectors_config=models.VectorParams(size=384, distance=models.Distance.COSINE),
-                    )
-                else:
-                    # For mock client
-                    self.qdrant_client.create_collection(
-                        "physical_ai_docs",
-                        {"size": 384, "distance": "Cosine"}
-                    )
-                logger.info("Collection 'physical_ai_docs' created successfully")
-            except Exception as create_error:
-                logger.error(f"Failed to create collection: {create_error}")
+        return len(intersection) / len(union) if len(union) > 0 else 0.0
 
     async def connect_to_neon_db(self):
         """Establish connection to Neon Postgres database"""
@@ -232,45 +106,26 @@ class RAGService:
         return vector[:384]
 
     async def store_document(self, content: str, metadata: dict = None) -> str:
-        """Store a document in Qdrant with embeddings"""
+        """Store a document in in-memory storage with text indexing"""
         if metadata is None:
             metadata = {}
 
         doc_id = str(uuid.uuid4())
-        vector = await self.embed_text(content)
 
-        try:
-            if QDRANT_AVAILABLE and hasattr(self.qdrant_client, 'upsert'):
-                self.qdrant_client.upsert(
-                    collection_name="physical_ai_docs",
-                    points=[
-                        models.PointStruct(
-                            id=doc_id,
-                            vector=vector,
-                            payload={
-                                "content": content,
-                                "metadata": metadata,
-                                "created_at": datetime.now().isoformat()
-                            }
-                        )
-                    ]
-                )
-            else:
-                # Use mock client
-                class MockPointStruct:
-                    def __init__(self, id, vector, payload):
-                        self.id = id
-                        self.vector = vector
-                        self.payload = payload
+        # Store the document in memory
+        self.documents[doc_id] = {
+            "id": doc_id,
+            "content": content,
+            "metadata": metadata,
+            "created_at": datetime.now().isoformat(),
+            "tokens": self._simple_tokenize(content)  # For search indexing
+        }
 
-                points = [MockPointStruct(doc_id, vector, {
-                    "content": content,
-                    "metadata": metadata,
-                    "created_at": datetime.now().isoformat()
-                })]
-                self.qdrant_client.upsert("physical_ai_docs", points)
-        except Exception as e:
-            logger.error(f"Error storing document in Qdrant: {e}")
+        # Update the inverted index for search
+        content_tokens = self._simple_tokenize(content)
+        for token in content_tokens:
+            if doc_id not in self.inverted_index[token]:
+                self.inverted_index[token].append(doc_id)
 
         # Store in Neon Postgres as well if available
         if hasattr(self.db_manager, 'has_pool') and self.db_manager.has_pool:
@@ -285,69 +140,55 @@ class RAGService:
         return doc_id
 
     async def search_documents(self, query: str, limit: int = 5) -> List[dict]:
-        """Search for relevant documents in Qdrant"""
+        """Search for relevant documents using in-memory text-based search"""
         try:
-            query_vector = await self.embed_text(query, input_type="search_query")
+            logger.info(f"Performing in-memory search for query: {query}")
 
-            logger.info(f"Qdrant client type: {type(self.qdrant_client)}")
-            logger.info(f"Qdrant client has search method: {hasattr(self.qdrant_client, 'search')}")
+            # Tokenize the query
+            query_tokens = self._simple_tokenize(query)
 
-            # Check if the collection exists before searching
-            try:
-                self.qdrant_client.get_collection("physical_ai_docs")
-                logger.info("Collection 'physical_ai_docs' exists")
-            except Exception as e:
-                logger.warning(f"Collection 'physical_ai_docs' does not exist: {e}")
-                # Try to create it again
-                try:
-                    if QDRANT_AVAILABLE:
-                        self.qdrant_client.create_collection(
-                            collection_name="physical_ai_docs",
-                            vectors_config=models.VectorParams(size=384, distance=models.Distance.COSINE),
-                        )
-                    else:
-                        # For mock client
-                        self.qdrant_client.create_collection(
-                            "physical_ai_docs",
-                            {"size": 384, "distance": "Cosine"}
-                        )
-                    logger.info("Collection 'physical_ai_docs' created successfully")
-                except Exception as create_error:
-                    logger.error(f"Failed to create collection: {create_error}")
-                    return []
-
-            # Check if the qdrant_client has the search method
-            if not hasattr(self.qdrant_client, 'search'):
-                logger.error("Qdrant client doesn't have search method - using fallback")
-                # Return empty results if search method is not available
+            if not query_tokens:
+                logger.info("No tokens found in query, returning empty results")
                 return []
 
-            # Perform search
-            search_results = self.qdrant_client.search(
-                collection_name="physical_ai_docs",
-                query_vector=query_vector,
-                limit=limit,
-                with_payload=True
-            )
+            # Find documents that contain query tokens
+            candidate_doc_ids = set()
 
+            # Get documents that contain any of the query tokens
+            for token in query_tokens:
+                if token in self.inverted_index:
+                    candidate_doc_ids.update(self.inverted_index[token])
+
+            if not candidate_doc_ids:
+                logger.info("No matching documents found in index")
+                return []
+
+            # Calculate similarity scores for each candidate document
+            scored_docs = []
+            for doc_id in candidate_doc_ids:
+                if doc_id in self.documents:
+                    doc_tokens = self.documents[doc_id]["tokens"]
+                    similarity_score = self._calculate_similarity(query_tokens, doc_tokens)
+
+                    if similarity_score > 0:  # Only include documents with some similarity
+                        scored_docs.append({
+                            "doc": self.documents[doc_id],
+                            "score": similarity_score
+                        })
+
+            # Sort by similarity score (highest first)
+            scored_docs.sort(key=lambda x: x["score"], reverse=True)
+
+            # Format results to match the expected structure
             results = []
-            for result in search_results:
-                # Check if result has the expected attributes
-                if hasattr(result, 'payload') and result.payload:
-                    results.append({
-                        "id": getattr(result, 'id', ''),
-                        "content": result.payload.get("content", ""),
-                        "metadata": result.payload.get("metadata", {}),
-                        "score": getattr(result, 'score', 0.0)
-                    })
-                elif isinstance(result, dict) and 'payload' in result:
-                    # Handle case where result is a dict
-                    results.append({
-                        "id": result.get("id", ""),
-                        "content": result.get("payload", {}).get("content", ""),
-                        "metadata": result.get("payload", {}).get("metadata", {}),
-                        "score": result.get("score", 0.0)
-                    })
+            for item in scored_docs[:limit]:  # Limit to requested number
+                doc = item["doc"]
+                results.append({
+                    "id": doc["id"],
+                    "content": doc["content"],
+                    "metadata": doc["metadata"],
+                    "score": item["score"]
+                })
 
             logger.info(f"Found {len(results)} search results")
             return results
