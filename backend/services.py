@@ -95,29 +95,25 @@ class RAGService:
             return 0
 
         try:
-            # Get all documents from the database - use a direct approach to get all documents
-            # Instead of using search_documents with empty query, let's try to get all documents
-            # First, let's get the count to understand what we're working with
+            # Get all documents from the database using a direct query
+            # The search_documents method with empty query doesn't work reliably
             async with self.db_manager.pool.acquire() as conn:
-                count = await conn.fetchval("SELECT COUNT(*) FROM documents")
-                logger.info(f"Total documents in database: {count}")
+                rows = await conn.fetch("SELECT id, content, metadata, created_at FROM documents")
+                logger.info(f"Direct query returned {len(rows)} documents from database")
 
-            # Now get all documents using the search method with empty query
-            # The database method should return all documents when query is empty
-            db_docs = await self.db_manager.search_documents("", limit=1000)  # Get all documents
-            logger.info(f"Retrieved {len(db_docs)} documents from database search")
-
-            for doc in db_docs:
-                doc_id = doc.get('id') or doc.get('doc_id', str(uuid.uuid4()))
-                content = doc.get('content', '')
-                metadata = doc.get('metadata', {})
+            # Process all retrieved documents
+            for row in rows:
+                doc_id = row['id']
+                content = row['content']
+                metadata = row['metadata']
+                created_at = str(row['created_at']) if row['created_at'] else datetime.now().isoformat()
 
                 # Store the document in memory
                 self.documents[doc_id] = {
                     "id": doc_id,
                     "content": content,
                     "metadata": metadata,
-                    "created_at": doc.get('created_at', datetime.now().isoformat()),
+                    "created_at": created_at,
                     "tokens": self._simple_tokenize(content)  # For search indexing
                 }
 
@@ -127,8 +123,8 @@ class RAGService:
                     if doc_id not in self.inverted_index[token]:
                         self.inverted_index[token].append(doc_id)
 
-            logger.info(f"Successfully loaded {len(db_docs)} documents into in-memory search index")
-            return len(db_docs)
+            logger.info(f"Successfully loaded {len(rows)} documents into in-memory search index")
+            return len(rows)
         except Exception as e:
             logger.error(f"Error loading documents from database: {e}")
             import traceback
