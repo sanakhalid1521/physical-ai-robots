@@ -79,9 +79,48 @@ class RAGService:
 
         return len(intersection) / len(union) if len(union) > 0 else 0.0
 
+    async def load_documents_from_db(self):
+        """Load documents from Neon Postgres into memory for searching"""
+        if hasattr(self.db_manager, 'has_pool') and self.db_manager.has_pool:
+            try:
+                # Get all documents from the database
+                db_docs = await self.db_manager.search_documents("", limit=1000)  # Get all documents
+                logger.info(f"Loading {len(db_docs)} documents from database into memory")
+
+                for doc in db_docs:
+                    doc_id = doc.get('id') or doc.get('doc_id', str(uuid.uuid4()))
+                    content = doc.get('content', '')
+                    metadata = doc.get('metadata', {})
+
+                    # Store the document in memory
+                    self.documents[doc_id] = {
+                        "id": doc_id,
+                        "content": content,
+                        "metadata": metadata,
+                        "created_at": doc.get('created_at', datetime.now().isoformat()),
+                        "tokens": self._simple_tokenize(content)  # For search indexing
+                    }
+
+                    # Update the inverted index for search
+                    content_tokens = self._simple_tokenize(content)
+                    for token in content_tokens:
+                        if doc_id not in self.inverted_index[token]:
+                            self.inverted_index[token].append(doc_id)
+
+                logger.info(f"Successfully loaded {len(db_docs)} documents into in-memory search index")
+                return len(db_docs)
+            except Exception as e:
+                logger.error(f"Error loading documents from database: {e}")
+                return 0
+        else:
+            logger.warning("Database manager not available or not connected")
+            return 0
+
     async def connect_to_neon_db(self):
         """Establish connection to Neon Postgres database"""
         await self.db_manager.connect()
+        # After connecting, load documents from the database into memory
+        await self.load_documents_from_db()
 
     async def embed_text(self, text: str, input_type: str = "search_document") -> List[float]:
         """Generate embeddings for text using Cohere or fallback method"""
