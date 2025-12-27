@@ -76,6 +76,13 @@ class RAGService:
                     logger.info("QDRANT_URL or QDRANT_API_KEY not set or using placeholder values. Using in-memory storage for testing")
                     # Initialize in-memory Qdrant client
                     self.qdrant_client = QdrantClient(":memory:")
+
+                # Verify that the client has the required methods after initialization
+                # Some Qdrant versions might have different method names or require additional setup
+                if not hasattr(self.qdrant_client, 'search'):
+                    logger.warning("Qdrant client doesn't have 'search' method after initialization")
+                    # Try to create a wrapped client that ensures all methods exist
+                    self.qdrant_client = self._create_wrapped_qdrant_client(self.qdrant_client)
             except Exception as e:
                 logger.error(f"Error initializing Qdrant client: {e}")
                 # Create a mock client that handles the search method properly
@@ -138,6 +145,40 @@ class RAGService:
                 return []
 
         return MockQdrantClient()
+
+    def _create_wrapped_qdrant_client(self, original_client):
+        """Create a wrapper around an existing Qdrant client to ensure all required methods exist"""
+        logger.info("Creating wrapped Qdrant client to ensure all methods exist")
+
+        class WrappedQdrantClient:
+            def __init__(self, original_client):
+                self._original_client = original_client
+                logger.info("Wrapped Qdrant client initialized")
+
+            def __getattr__(self, name):
+                # Delegate to the original client for any method not explicitly defined
+                return getattr(self._original_client, name)
+
+            def search(self, *args, **kwargs):
+                # Try to use the original search method first
+                if hasattr(self._original_client, 'search'):
+                    return self._original_client.search(*args, **kwargs)
+                # If not available, try alternative method names (like query_points)
+                elif hasattr(self._original_client, 'query_points'):
+                    return self._original_client.query_points(*args, **kwargs)
+                # If neither exists, return empty results
+                else:
+                    logger.warning("No search method found in Qdrant client, returning empty results")
+                    # Create mock results to match expected format
+                    class MockResult:
+                        def __init__(self, id, payload, score):
+                            self.id = id
+                            self.payload = payload
+                            self.score = score
+
+                    return []
+
+        return WrappedQdrantClient(original_client)
 
     def _ensure_collection_exists(self):
         """Ensure the Qdrant collection exists"""
