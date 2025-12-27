@@ -76,7 +76,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ isOpen, onClose, initialContext
 
     try {
       // Construct the API URL - using local backend
-     t backendUrl = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+     const backendUrl = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
           ? 'https://sanakhalid123-physicalairag.hf.space'  // Your Hugging Face deployment
           : 'http://localhost:8000';  // Local development
         const apiUrl = `${backendUrl}/api/rag/query`;

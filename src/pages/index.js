@@ -52,26 +52,11 @@ function HomepageHeader() {
 }
 
 export default function Home() {
-  // Redirect to login page by default
-  if (typeof window !== 'undefined') {
-    window.location.href = '/login';
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        fontSize: '18px'
-      }}>
-        Redirecting to login...
-      </div>
-    );
-  }
-
   const { siteConfig } = useDocusaurusContext();
   const { currentUser, loading } = useAuth();
 
-  // Show the normal home page for all users (authenticated or not)
+  // If user is authenticated, show the home page; otherwise, show the home page anyway
+  // The authentication will be handled by individual protected routes
   return (
     <Layout
       title={`Hello from ${siteConfig.title}`}
