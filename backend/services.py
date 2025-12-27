@@ -81,49 +81,58 @@ class RAGService:
 
     async def load_documents_from_db(self):
         """Load documents from Neon Postgres into memory for searching"""
-        if hasattr(self.db_manager, 'has_pool') and self.db_manager.has_pool:
-            try:
-                # Get all documents from the database - use a direct approach to get all documents
-                # Instead of using search_documents with empty query, let's try to get all documents
-                # First, let's get the count to understand what we're working with
-                async with self.db_manager.pool.acquire() as conn:
-                    count = await conn.fetchval("SELECT COUNT(*) FROM documents")
-                    logger.info(f"Total documents in database: {count}")
+        # Check if database manager is available
+        logger.info(f"Database manager pool status: {self.db_manager.has_pool}")
+        logger.info(f"Database manager pool object: {self.db_manager.pool}")
+        logger.info(f"Database manager is available: {self.db_manager.is_available}")
 
-                # Now get all documents using the search method with empty query
-                # The database method should return all documents when query is empty
-                db_docs = await self.db_manager.search_documents("", limit=1000)  # Get all documents
-                logger.info(f"Retrieved {len(db_docs)} documents from database search")
+        if not hasattr(self.db_manager, 'has_pool'):
+            logger.warning("has_pool attribute not found in db_manager")
+            return 0
 
-                for doc in db_docs:
-                    doc_id = doc.get('id') or doc.get('doc_id', str(uuid.uuid4()))
-                    content = doc.get('content', '')
-                    metadata = doc.get('metadata', {})
+        if not self.db_manager.has_pool:
+            logger.warning("Database manager pool is not available")
+            return 0
 
-                    # Store the document in memory
-                    self.documents[doc_id] = {
-                        "id": doc_id,
-                        "content": content,
-                        "metadata": metadata,
-                        "created_at": doc.get('created_at', datetime.now().isoformat()),
-                        "tokens": self._simple_tokenize(content)  # For search indexing
-                    }
+        try:
+            # Get all documents from the database - use a direct approach to get all documents
+            # Instead of using search_documents with empty query, let's try to get all documents
+            # First, let's get the count to understand what we're working with
+            async with self.db_manager.pool.acquire() as conn:
+                count = await conn.fetchval("SELECT COUNT(*) FROM documents")
+                logger.info(f"Total documents in database: {count}")
 
-                    # Update the inverted index for search
-                    content_tokens = self._simple_tokenize(content)
-                    for token in content_tokens:
-                        if doc_id not in self.inverted_index[token]:
-                            self.inverted_index[token].append(doc_id)
+            # Now get all documents using the search method with empty query
+            # The database method should return all documents when query is empty
+            db_docs = await self.db_manager.search_documents("", limit=1000)  # Get all documents
+            logger.info(f"Retrieved {len(db_docs)} documents from database search")
 
-                logger.info(f"Successfully loaded {len(db_docs)} documents into in-memory search index")
-                return len(db_docs)
-            except Exception as e:
-                logger.error(f"Error loading documents from database: {e}")
-                import traceback
-                traceback.print_exc()
-                return 0
-        else:
-            logger.warning("Database manager not available or not connected")
+            for doc in db_docs:
+                doc_id = doc.get('id') or doc.get('doc_id', str(uuid.uuid4()))
+                content = doc.get('content', '')
+                metadata = doc.get('metadata', {})
+
+                # Store the document in memory
+                self.documents[doc_id] = {
+                    "id": doc_id,
+                    "content": content,
+                    "metadata": metadata,
+                    "created_at": doc.get('created_at', datetime.now().isoformat()),
+                    "tokens": self._simple_tokenize(content)  # For search indexing
+                }
+
+                # Update the inverted index for search
+                content_tokens = self._simple_tokenize(content)
+                for token in content_tokens:
+                    if doc_id not in self.inverted_index[token]:
+                        self.inverted_index[token].append(doc_id)
+
+            logger.info(f"Successfully loaded {len(db_docs)} documents into in-memory search index")
+            return len(db_docs)
+        except Exception as e:
+            logger.error(f"Error loading documents from database: {e}")
+            import traceback
+            traceback.print_exc()
             return 0
 
     async def connect_to_neon_db(self):
